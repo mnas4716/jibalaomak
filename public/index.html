@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curbside</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet">
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#070d18;--s0:#0d1726;--s1:#111f36;--s2:#162440;
+      --bd:#1e2e47;--bd2:#243552;
+      --txt:#dde7f4;--txt2:#b4c4d8;--mut:#6b7d96;
+      --emer:#0fd494;--emer2:#0bb87d;
+      --blue:#4a9eff;--amber:#f0a428;--red:#f25a5a;--purple:#a78bfa;
+    }
+    html{font-family:'Inter',system-ui,sans-serif;font-size:14px;color:var(--txt);background:var(--bg)}
+    body{min-height:100vh;background:radial-gradient(ellipse 120% 60% at 50% -10%,rgba(13,212,148,.07),transparent 55%),linear-gradient(180deg,#070d18 0%,#050c16 100%)}
+    .app-shell{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+      background:rgba(7,13,24,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(30,46,71,.8)}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,#13e09e,#0c9b74);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#03120d;flex-shrink:0;box-shadow:0 0 18px rgba(13,212,148,.3)}
+    .brand-name{font-size:16px;font-weight:700;letter-spacing:-.4px}
+    .brand-name em{font-style:normal;font-weight:300;color:var(--mut)}
+    .topbar-right{display:flex;align-items:center;gap:4px}
+    .tnav{padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.13s;letter-spacing:-.1px}
+    .tnav.active{background:rgba(13,212,148,.12);color:var(--emer)}
+    .tnav.ghost{background:transparent;color:var(--mut)}
+    .tnav.ghost:hover{background:var(--s1);color:var(--txt)}
+    .tsep{width:1px;height:18px;background:var(--bd);margin:0 3px}
+    .page{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+    .card{background:linear-gradient(160deg,var(--s1),var(--s0));border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.18)}
+    .card.emer-border{border-color:rgba(13,212,148,.3);box-shadow:0 0 0 1px rgba(13,212,148,.08),0 6px 20px rgba(0,0,0,.2)}
+    .card.blue-border{border-color:rgba(74,158,255,.25)}
+    .ch{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+    .ct{font-size:14px;font-weight:700;letter-spacing:-.15px}
+    label{display:block;font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+    input,select,textarea{width:100%;padding:9px 12px;background:var(--s0);border:1px solid var(--bd);border-radius:11px;color:var(--txt);font-size:14px;font-family:inherit;margin-bottom:11px;transition:.13s;outline:none;-webkit-appearance:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--emer);box-shadow:0 0 0 3px rgba(13,212,148,.1)}
+    textarea{resize:vertical;min-height:72px;line-height:1.5}
+    .row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+    .hidden{display:none}.view-hidden{display:none!important}
+    button{padding:8px 15px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.13s;font-family:inherit;letter-spacing:-.1px}
+    .btn-primary{background:linear-gradient(145deg,#13e09e,#0bb87d);color:#03130c;box-shadow:0 3px 12px rgba(13,212,148,.28)}
+    .btn-primary:hover{filter:brightness(1.06)}
+    .btn-secondary{background:var(--s2);color:var(--txt);border:1px solid var(--bd2)}
+    .btn-secondary:hover{background:var(--bd);border-color:var(--bd2)}
+    .btn-danger{background:linear-gradient(145deg,#f25a5a,#d13e3e);color:#fff;box-shadow:0 3px 12px rgba(242,90,90,.22)}
+    .btn-sm{padding:5px 10px;font-size:11.5px;border-radius:7px}
+    .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+    .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+    .badge-gp{background:rgba(13,212,148,.12);color:var(--emer)}
+    .badge-specialist{background:rgba(74,158,255,.12);color:var(--blue)}
+    .badge-admin{background:rgba(240,164,40,.12);color:var(--amber)}
+    .badge-routine{background:var(--s2);color:var(--mut)}
+    .badge-soon{background:rgba(240,164,40,.12);color:var(--amber)}
+    .badge-urgent{background:rgba(242,90,90,.12);color:var(--red)}
+    .badge-broadcasting{background:rgba(13,212,148,.1);color:var(--emer)}
+    .badge-accepted{background:rgba(74,158,255,.1);color:var(--blue)}
+    .badge-active{background:rgba(167,139,250,.1);color:var(--purple)}
+    .badge-completed{background:var(--s2);color:var(--mut)}
+    .pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+    .pill-ok{background:rgba(13,212,148,.1);color:var(--emer);border:1px solid rgba(13,212,148,.18)}
+    .pill-wait{background:rgba(74,158,255,.1);color:var(--blue);border:1px solid rgba(74,158,255,.18)}
+    .banner{padding:11px 14px;border-radius:11px;font-size:13px;font-weight:600;margin-bottom:14px}
+    .banner-ok{background:rgba(13,212,148,.09);border:1px solid rgba(13,212,148,.22);color:var(--emer)}
+    .banner-wait{background:rgba(240,164,40,.09);border:1px solid rgba(240,164,40,.22);color:var(--amber)}
+    .banner-err{background:rgba(242,90,90,.09);border:1px solid rgba(242,90,90,.22);color:var(--red)}
+    .status{padding:8px 12px;border-radius:9px;font-size:13px;margin-bottom:10px}
+    .status-err{background:rgba(242,90,90,.09);border:1px solid rgba(242,90,90,.22);color:var(--red)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media(min-width:700px){.stats{grid-template-columns:repeat(6,1fr)}}
+    .stat{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+    .stat-n{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .stat-l{display:block;font-size:10px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+    .consult-row{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:11px 14px;margin-bottom:7px;font-size:13px;cursor:pointer;transition:.13s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .consult-row:hover{border-color:var(--emer);background:var(--s1)}
+    .inbox-item{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:9px}
+    .inbox-item .ih{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;flex-wrap:wrap}
+    .inbox-item .ref{font-size:14px;font-weight:700}
+    .inbox-item .summ{font-size:12.5px;color:var(--mut);line-height:1.55;margin:5px 0}
+    .live-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(13,212,148,.04);border:1px solid rgba(13,212,148,.18);border-radius:12px;padding:11px 14px;margin-bottom:8px}
+    #jitsi-container{border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px;min-height:220px}
+    .room-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:820px){.room-grid{grid-template-columns:3fr 2fr}}
+    .scribe{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:14px;display:flex;flex-direction:column;height:480px}
+    #transcript-box{flex:1;overflow-y:auto;font-size:12.5px;line-height:1.6}
+    .t-line{padding:6px 10px;border-radius:7px;margin-bottom:5px}
+    .t-gp{background:rgba(13,212,148,.07);border-left:2px solid var(--emer)}
+    .t-spec{background:rgba(74,158,255,.07);border-left:2px solid var(--blue)}
+    .t-sp{font-weight:700;font-size:9px;text-transform:uppercase;display:block;color:var(--mut);margin-bottom:1px}
+    #interim-text{color:var(--mut);font-style:italic;font-size:11.5px;min-height:14px;margin:4px 0}
+    .doc{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px}
+    .doc-type{font-size:9.5px;font-weight:700;color:var(--emer);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+    .doc pre{white-space:pre-wrap;font-size:12px;line-height:1.6;font-family:inherit}
+    .doc-acc{background:var(--s0);border:1px solid var(--bd);border-radius:12px;margin-bottom:8px;overflow:hidden}
+    .doc-acc summary{padding:12px 15px;cursor:pointer;font-weight:600;font-size:13px;text-transform:capitalize;list-style:none;user-select:none;display:flex;align-items:center;gap:8px}
+    .doc-acc summary::-webkit-details-marker{display:none}
+    .doc-acc summary::before{content:'';width:5px;height:5px;border-right:2px solid var(--emer);border-bottom:2px solid var(--emer);transform:rotate(-45deg);display:inline-block;flex-shrink:0;transition:.18s}
+    .doc-acc[open] summary::before{transform:rotate(45deg)}
+    .doc-acc pre{white-space:pre-wrap;font-size:12px;line-height:1.6;font-family:inherit;padding:0 15px}
+    .doc-acc .btn-row{padding:8px 15px 14px}
+    .bill-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .bill-table th{text-align:left;color:var(--mut);font-weight:600;padding:8px;border-bottom:1px solid var(--bd);text-transform:uppercase;font-size:10px;letter-spacing:.4px}
+    .bill-table td{padding:8px;border-bottom:1px solid var(--bd);vertical-align:middle}
+    .bill-row{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:11px 14px;margin-bottom:7px;font-size:13px}
+    .audit-row{padding:7px 10px;border-bottom:1px solid var(--bd);font-size:12px}
+    .audit-ev{font-weight:700;color:var(--blue)}
+    .user-row{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+    .ai-box{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:12px;font-size:12px;margin:10px 0;line-height:1.65;color:var(--txt2)}
+    .tabs{display:flex;gap:4px;background:var(--s0);padding:4px;border-radius:10px;border:1px solid var(--bd);margin-bottom:14px}
+    .tab{flex:1;padding:7px;border-radius:7px;text-align:center;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--mut);transition:.13s}
+    .tab.active{background:var(--s1);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+    .muted{color:var(--mut);font-size:13px}
+    .meta{font-size:12.5px;color:var(--mut);margin-bottom:8px}
+    .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:4px}
+    .dot-on{background:var(--emer)}.dot-off{background:#64748b}
+    .note-input{display:flex;gap:8px;margin-top:8px}
+    .log{background:var(--s0);border:1px solid var(--bd);border-radius:12px;padding:12px;font-family:ui-monospace,monospace;font-size:11px;color:var(--emer);max-height:140px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+    .avail-widget{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    a{color:var(--emer)}
+    .slab{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);margin:4px 0 8px}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">C</div><div class="brand-name">Curbside <em>/ AU</em></div></div>
+    <div id="topbar-right" class="topbar-right">
+      <span id="user-chip" class="hidden" style="font-size:12px;color:var(--mut);margin-right:4px"></span>
+      <button id="nav-dash" class="tnav ghost hidden" onclick="switchView('dashboard')">Dashboard</button>
+      <button id="nav-bill" class="tnav ghost hidden" onclick="switchView('billing')">Billing</button>
+      <div class="tsep hidden" id="nav-sep"></div>
+      <button id="nav-settings" class="tnav ghost hidden" onclick="openSettings()">Settings</button>
+      <button id="nav-logout" class="tnav ghost hidden" onclick="doLogout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- AUTH -->
+    <div id="auth-section" style="max-width:420px;margin:56px auto 0">
+      <div style="text-align:center;margin-bottom:24px">
+        <div class="brand-mark" style="width:50px;height:50px;border-radius:15px;font-size:26px;margin:0 auto 14px"></div>
+        <h1 style="font-size:23px;font-weight:800;letter-spacing:-.5px">Sign in to Curbside</h1>
+        <p class="muted" style="margin-top:5px">GP–Specialist real-time consultation platform</p>
+      </div>
+      <div class="card">
+        <div id="auth-status" class="hidden"></div>
+        <label>Email</label><input type="email" id="email" value="gp@demo.com" autocomplete="username">
+        <label>Password</label><input type="password" id="password" value="password123" autocomplete="current-password">
+        <div id="register-fields" class="hidden" style="margin-top:4px">
+          <div style="border-top:1px solid var(--bd);margin:8px 0 14px"></div>
+          <div class="row"><div><label>First Name</label><input id="reg-first"></div><div><label>Last Name</label><input id="reg-last"></div></div>
+          <div class="row"><div><label>Role</label><select id="reg-role"><option value="gp">GP</option><option value="specialist">Specialist</option><option value="admin">Admin</option></select></div><div><label>Phone</label><input id="reg-phone" placeholder="+61400000000"></div></div>
+          <div class="row"><div><label>AHPRA</label><input id="reg-ahpra" placeholder="MED0001234"></div><div><label>Practice</label><input id="reg-practice"></div></div>
+          <div class="row"><div><label>Specialty</label><input id="reg-specialty" placeholder="Dermatology"></div><div><label>Qualifications</label><input id="reg-quals" placeholder="MBBS FACD"></div></div>
+          <label>Practising Postcode</label><input id="reg-postcode" placeholder="2000" maxlength="4" inputmode="numeric">
+        </div>
+        <div class="btn-row" style="margin-top:2px">
+          <button class="btn-primary" id="login-btn" onclick="doLogin()" style="flex:1">Sign in</button>
+          <button class="btn-secondary" onclick="toggleRegister()">Register</button>
+        </div>
+        <p class="muted" style="margin-top:12px;font-size:11.5px;line-height:1.6">Demo: gp@ · derm@ / cardio@ / endo@ / psych@ · admin@demo.com — all password123</p>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+
+      <div id="billing-view" class="hidden">
+        <div class="card"><div class="ch"><div class="ct">MBS Billing</div></div><div id="billing-view-summary" class="stats"></div><p class="muted" id="billing-view-note" style="margin-top:12px"></p></div>
+        <div class="card"><div class="ch"><div class="ct">Billed Consults</div><button class="btn-secondary btn-sm" onclick="loadBillingView()">Refresh</button></div><div id="billing-view-table"></div></div>
+      </div>
+
+      <div id="settings-panel" class="card blue-border hidden">
+        <div class="ch"><div class="ct">Settings</div><button class="btn-secondary btn-sm" onclick="closeSettings()">Close</button></div>
+        <div id="settings-status" class="hidden"></div>
+        <label>New Email</label><div class="row" style="align-items:flex-start"><input id="set-email" type="email"><button class="btn-secondary" onclick="changeEmail()" style="flex-shrink:0;margin-bottom:11px">Update</button></div>
+        <label>Current Password</label><input id="set-curpw" type="password">
+        <label>New Password</label><div class="row" style="align-items:flex-start"><input id="set-newpw" type="password"><button class="btn-secondary" onclick="changePassword()" style="flex-shrink:0;margin-bottom:11px">Update</button></div>
+      </div>
+
+      <div id="room-section" class="card emer-border hidden">
+        <div class="ch">
+          <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1.2s ease-in-out infinite"></span><span id="room-title">Live Consult</span></div>
+          <div class="btn-row" style="margin:0">
+            <select id="room-location" style="margin:0;width:auto;padding:5px 10px;font-size:12.5px"><option value="in_rooms">In consulting rooms</option><option value="out_rooms">Out of rooms</option><option value="raca">Residential aged care</option></select>
+            <button class="btn-secondary btn-sm" onclick="leaveVideoRoom()">Leave (keep open)</button>
+            <button class="btn-danger btn-sm" onclick="endConsultFromRoom()">✓ Complete &amp; Generate Notes</button>
+          </div>
+        </div>
+        <div class="room-grid">
+          <div id="jitsi-container"></div>
+          <div class="scribe">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;align-items:center"><strong style="font-size:13px;font-weight:700">Live Scribe</strong><span id="transcript-status" class="muted" style="font-size:11px">starting…</span></div>
+            <div id="transcript-box"></div>
+            <div id="interim-text"></div>
+            <div class="row" style="margin-top:8px"><input id="manual-line" placeholder="Type a line if mic unavailable…" style="margin:0"><button class="btn-secondary btn-sm" onclick="addManualLine()">Add</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GP -->
+      <div id="gp-panel" class="hidden">
+        <div id="gp-banner" class="banner hidden"></div>
+        <div id="gp-stats" class="stats hidden" style="margin-bottom:14px"></div>
+        <div id="gp-live" class="card emer-border hidden"></div>
+        <div class="card">
+          <div class="ch"><div class="ct" id="consult-form-title">New Consult Request</div></div>
+          <div class="row">
+            <div><label>Specialty</label><select id="c-specialty"><option>Dermatology</option><option>Cardiology</option><option>Endocrinology</option><option>Psychiatry</option></select></div>
+            <div><label>Booking Type</label><select id="c-booking" onchange="onBookingChange()"><option value="on_call">On Call — now</option><option value="scheduled">Scheduled</option></select></div>
+          </div>
+          <div id="c-sched-wrap" class="hidden"><label>Date / Time</label><input id="c-scheduled" type="datetime-local"></div>
+          <div class="row"><div><label>Patient First Name</label><input id="c-first" value="Margaret"></div><div><label>Patient Last Name</label><input id="c-last" value="Smith"></div></div>
+          <div class="row">
+            <div><label>Medicare #</label><input id="c-medicare" placeholder="2123 45670 1"></div>
+            <div style="max-width:76px"><label>IRN</label><input id="c-irn" placeholder="1"></div>
+            <div style="max-width:86px"><label>Sex</label><select id="c-sex"><option>F</option><option>M</option><option>Other</option></select></div>
+          </div>
+          <div class="row"><div><label>Date of Birth</label><input id="c-dob" type="date" value="1957-03-12"></div><div></div></div>
+          <label>Case Summary</label><textarea id="c-summary">3wk rash bilateral forearms, started after amlodipine 5mg. Tried HC 1% no improvement. Switch antihypertensive?</textarea>
+          <label>Attachments <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px">— images, PDFs, labs (optional)</span></label>
+          <input type="file" id="c-files" multiple accept="image/*,.pdf,.txt,.doc,.docx" onchange="onFilesSelected()">
+          <div id="c-files-list" class="muted" style="margin-bottom:10px"></div>
+          <div class="btn-row"><button class="btn-primary" id="consult-submit" onclick="submitConsult()">Create &amp; Broadcast</button><button class="btn-secondary hidden" id="consult-cancel-edit" onclick="cancelEdit()">Cancel</button></div>
+        </div>
+        <div id="consult-actions" class="card hidden"></div>
+        <div id="docs-panel" class="card hidden"></div>
+        <div id="gp-billing" class="card"></div>
+      </div>
+
+      <!-- SPECIALIST -->
+      <div id="spec-panel" class="hidden">
+        <div id="spec-stats" class="stats hidden" style="margin-bottom:14px"></div>
+        <div id="spec-live" class="card emer-border hidden"></div>
+        <div class="card">
+          <div class="ch"><div class="ct">Availability</div></div>
+          <div class="avail-widget">
+            <div id="avail-dot" class="dot dot-off"></div>
+            <button id="avail-btn" class="btn-secondary" onclick="toggleAvailability()">⚪ Offline</button>
+            <span class="muted" style="font-size:12px">Toggle on to receive all incoming consult broadcasts.</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Incoming Consults</div><button class="btn-secondary btn-sm" onclick="loadInbox()">Refresh</button></div>
+          <div id="spec-inbox"></div>
+          <div id="spec-inbox-others" class="hidden"></div>
+        </div>
+        <div id="spec-consult-actions" class="card hidden"></div>
+        <div class="card"><div class="ch"><div class="ct">Past</div><button class="btn-secondary btn-sm" onclick="loadSpecPast()">Refresh</button></div><div id="spec-past"></div></div>
+        <div id="spec-billing" class="card"></div>
+      </div>
+
+      <!-- ADMIN -->
+      <div id="admin-panel" class="hidden">
+        <div class="card"><div class="ch"><div class="ct">Platform Overview</div></div><div id="admin-stats" class="stats"></div></div>
+        <div class="card"><div class="ch"><div class="ct">GPs</div><button class="btn-secondary btn-sm" onclick="loadAdminUsers('gp')">Refresh</button></div><div id="admin-gps"></div></div>
+        <div class="card"><div class="ch"><div class="ct">Specialists</div><button class="btn-secondary btn-sm" onclick="loadAdminUsers('specialist')">Refresh</button></div><div id="admin-specs"></div></div>
+        <div id="admin-billing" class="card"></div>
+        <div class="card"><div class="ch"><div class="ct">Billing Records</div></div><div id="admin-billing-table"></div></div>
+        <div class="card"><div class="ch"><div class="ct">Audit Log</div><button class="btn-secondary btn-sm" onclick="loadAudit()">Refresh</button></div><div id="admin-audit"></div></div>
+        <div id="admin-user-consults" class="card hidden"></div>
+        <div id="admin-consult-detail" class="card blue-border hidden"></div>
+      </div>
+
+      <div id="consults-card" class="card">
+        <div class="tabs"><div class="tab active" id="tab-active" onclick="switchTab('active')">Active</div><div class="tab" id="tab-past" onclick="switchTab('past')">Past</div></div>
+        <div id="active-list"></div>
+        <div id="past-list" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)">Activity Log</div>
+        <button class="btn-secondary btn-sm" onclick="document.getElementById('log').textContent=''">Clear</button>
+      </div>
+      <div id="log" class="log">Ready.\n</div>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<script>
+  function switchTab(t){
+    document.getElementById('tab-active').classList.toggle('active',t==='active');
+    document.getElementById('tab-past').classList.toggle('active',t==='past');
+    document.getElementById('active-list').classList.toggle('hidden',t!=='active');
+    document.getElementById('past-list').classList.toggle('hidden',t!=='past');
+  }
+  const _blink=document.createElement('style');
+  _blink.textContent='@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}';
+  document.head.appendChild(_blink);
+</script>
+</body>
+</html>
